@@ -4,12 +4,12 @@ module.exports.config = {
   name: "drive",
   version: "1.0.7",
   permission: 0,
-  credits: "Mahabub",
-  description: "Generate direct download link from replied media (Drive-hosted)",
+  credits: "IMRAN",
+  description: "Generate direct download link from media (Drive-hosted)",
   prefix: true,
   premium: false,
   category: "utility",
-  usages: "Reply to any Google Drive video/image",
+  usages: "Reply ${global.config.PREFIX}driveto any video/image",
   cooldowns: 5
 };
 
@@ -17,7 +17,7 @@ module.exports.run = async ({ api, event }) => {
   const replied = event.messageReply;
 
   if (!replied || !replied.attachments || replied.attachments.length === 0) {
-    return api.sendMessage("❌ Please reply to a Google Drive video/image or media.", event.threadID, event.messageID);
+    return api.sendMessage("𝗣𝗹𝗲𝗮𝘀𝗲 𝗿𝗲𝗽𝗹𝗮𝘆 𝘁𝗼 𝗮𝗻𝘆 𝘃𝗶𝗱𝗲𝗼 𝗼𝗿 𝗶𝗺𝗮𝗴𝗲.", event.threadID, event.messageID);
   }
 
   const fileUrl = replied.attachments[0].url;
@@ -29,12 +29,12 @@ module.exports.run = async ({ api, event }) => {
     const data = res.data;
 
     if (!data.success || !data.directLink) {
-      return api.sendMessage("❌ Failed to get direct download link. The file might not be hosted on Google Drive.", event.threadID);
+      return api.sendMessage("✖ Unable to progress your request", event.threadID);
     }
 
-    return api.sendMessage(`🔗 Direct Download Link:\n${data.directLink}`, event.threadID, event.messageID);
+    return api.sendMessage(`🔗 𝗗𝗶𝗿𝗲𝗰𝘁 𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱 𝗟𝗶𝗻𝗸:\n${data.directLink}`, event.threadID, event.messageID);
   } catch (e) {
     console.error(e);
-    return api.sendMessage("❌ Error while contacting the API.", event.threadID);
+    return api.sendMessage("✖ Error while contacting the API.", event.threadID);
   }
 };
