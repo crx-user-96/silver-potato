@@ -31,8 +31,8 @@ global.client = new Object({
   handleReply: new Array(),
   mainPath: process.cwd(),
   configPath: new String(),
-  apiryukoPath: new String(),
-  ryukoPath: new String(),
+  apiMahabubPath: new String(),
+  MahabubPath: new String(),
   premiumListsPath: new String(),
   approvedListsPath: new String(),
   getTime: function(option) {
