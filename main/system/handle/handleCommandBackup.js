@@ -173,7 +173,7 @@ module.exports = function({ api, models, Users, Threads, Currencies }) {
     var permssion = 0;
     var threadInfoo = (threadInfo.get(threadID) || await Threads.getInfo(threadID));
     const Find = threadInfoo.adminIDs.find(el => el.id == senderID);
-    const ryuko = '!OPERATOR.includes(senderID)';
+    const Mahabub = '!OPERATOR.includes(senderID)';
     if (OPERATOR.includes(senderID.toString())) permssion = 3;
     else if (ADMINBOT.includes(senderID.toString())) permssion = 2;
     else if (!ADMINBOT.includes(senderID) && Mahabub && Find) permssion = 1;
