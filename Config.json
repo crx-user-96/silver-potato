@@ -1,0 +1,21 @@
+{
+  "author": "MR᭄﹅ MAHABUB﹅ メꪜ",
+  "developermode": false,
+  "language": "en",
+  "approval": false,
+  "premium": false,
+  "BOTNAME": "「 𝐌𝐀𝐇𝐀𝐁𝐔𝐁-𝐁𝐎𝐓 」🩷🪽",
+  "EMAIL": "pmahabur70@gmail.com",
+  "PREFIX": "/",
+  "OPERATOR": [
+    "100014754734049",
+    "100091459940475"
+  ],
+  "ADMINBOT": [
+    "100014754734049"
+  ],
+  "OWNER": ["100014754734049"],
+  "disabledcmds": [],
+  "disabledevents": [],
+  "note": "make sure that the bot name you entered is all lowercase"
+}
