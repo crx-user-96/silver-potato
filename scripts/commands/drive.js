@@ -22,7 +22,7 @@ module.exports.run = async ({ api, event }) => {
 
   const fileUrl = replied.attachments[0].url;
 
-  const apiURL = `https://glowing-octo-computing-machine-seven.vercel.app/api/upload?url=${encodeURIComponent(fileUrl)}`;
+  const apiURL = `https://imran-x-mahabub-drive-upload-api-s.vercel.app/api/upload?url=${encodeURIComponent(fileUrl)}`;
 
   try {
     const res = await axios.get(apiURL);
