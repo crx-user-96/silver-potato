@@ -77,8 +77,8 @@ global.send = require('../system/notification/mail.js');
 
 global.nodemodule = new Object();
 global.config = new Object();
-global.ryuko = new Object();
-global.apiryuko = new Object();
+global.Mahabub = new Object();
+global.apiMahabub = new Object();
 global.premium = new Object();
 global.approved = new Object();
 global.configModule = new Object();
@@ -98,27 +98,27 @@ if (errorMessages.length > 0) {
   });
 }
 
-var apiryukoValue;
+var apiMahabubValue;
 try {
-  global.client.apiryukoPath = join(global.client.mainPath, "../configs/api.json");
-  apiryukoValue = require(global.client.apiryukoPath);
+  global.client.apiMahabubPath = join(global.client.mainPath, "../configs/api.json");
+  apiMahabubValue = require(global.client.apiMahabubPath);
 } catch (e) {
   return;
 }
 try {
-  for (const apiKeys in apiryukoValue) global.apiryuko[apiKeys] = apiryukoValue[apiKeys];
+  for (const apiKeys in apiMahabubValue) global.apiMahabub[apiKeys] = apiMahabubValue[apiKeys];
 } catch (e) {
   return;
 }
-var ryukoValue;
+var MahabubValue;
 try {
-  global.client.ryukoPath = join(global.client.mainPath, "../configs/Config.json");
-  ryukoValue = require(global.client.ryukoPath);
+  global.client.MahabubPath = join(global.client.mainPath, "../configs/Config.json");
+  MahabubValue = require(global.client.MahabubPath);
 } catch (e) {
   return;
 }
 try {
-  for (const Keys in ryukoValue) global.ryuko[Keys] = ryukoValue[Keys];
+  for (const Keys in MahabubValue) global.ryuko[Keys] = MahabubValue[Keys];
 } catch (e) {
   return;
 }
@@ -267,18 +267,18 @@ function onBot({ models: botModel }) {
         console.log(err)
         return process.exit(0)
       }
-    api.setOptions(global.ryuko.loginoptions);
+    api.setOptions(global.Mahabub.loginoptions);
     const fbstate = api.getAppState();
     let d = api.getAppState();
     d = JSON.stringify(d, null, '\x09');
-    if ((process.env.REPL_OWNER || process.env.PROCESSOR_IDENTIFIER) && global.ryuko.encryptSt) {
+    if ((process.env.REPL_OWNER || process.env.PROCESSOR_IDENTIFIER) && global.Mahabub.encryptSt) {
       d = await global.utils.encryptState(d, process.env.REPL_OWNER || process.env.PROCESSOR_IDENTIFIER);
       writeFileSync(appStateFile, d)
     } else {
       writeFileSync(appStateFile, d)
     }
     global.client.api = api
-    global.ryuko.version = config.version,
+    global.Mahabub.version = config.version,
       (async () => {
         const commandsPath = `../../scripts/commands`;
         const listCommand = readdirSync(commandsPath).filter(command => command.endsWith('.js') && !command.includes('example') && !global.config.disabledcmds.includes(command));
@@ -335,14 +335,14 @@ function onBot({ models: botModel }) {
             if (envConfig) {
               const moduleName = config.name;
               global.configModule[moduleName] = global.configModule[moduleName] || {};
-              global.ryuko[moduleName] = global.ryuko[moduleName] || {};
+              global.Mahabub[moduleName] = global.Mahabub[moduleName] || {};
               for (const envConfigKey in envConfig) {
-                global.configModule[moduleName][envConfigKey] = global.ryuko[moduleName][envConfigKey] ?? envConfig[envConfigKey];
-                global.ryuko[moduleName][envConfigKey] = global.ryuko[moduleName][envConfigKey] ?? envConfig[envConfigKey];
+                global.configModule[moduleName][envConfigKey] = global.Mahabub[moduleName][envConfigKey] ?? envConfig[envConfigKey];
+                global.Mahabub[moduleName][envConfigKey] = global.Mahabub[moduleName][envConfigKey] ?? envConfig[envConfigKey];
               }
-              var ryukoPath = require('../configs/Config.json');
-              ryukoPath[moduleName] = envConfig;
-              writeFileSync(global.client.ryukoPath, JSON.stringify(ryukoPath, null, 4), 'utf-8');
+              var MahabubPath = require('../configs/Config.json');
+              MahabubPath[moduleName] = envConfig;
+              writeFileSync(global.client.MahabubPath, JSON.stringify(MahabubPath, null, 4), 'utf-8');
             }
 
 
@@ -416,8 +416,8 @@ function onBot({ models: botModel }) {
               for (const evt in config.envConfig) {
                 configModule[evt] = configData[evt] = config.envConfig[evt] || '';
               }
-              writeFileSync(global.client.ryukoPath, JSON.stringify({
-                ...require(global.client.ryukoPath),
+              writeFileSync(global.client.MahabubPath, JSON.stringify({
+                ...require(global.client.MahabubPath),
                 [config.name]: config.envConfig
               }, null, 2));
             }
