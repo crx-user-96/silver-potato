@@ -118,7 +118,7 @@ try {
   return;
 }
 try {
-  for (const Keys in MahabubValue) global.ryuko[Keys] = MahabubValue[Keys];
+  for (const Keys in MahabubValue) global.Mahabub[Keys] = MahabubValue[Keys];
 } catch (e) {
   return;
 }
