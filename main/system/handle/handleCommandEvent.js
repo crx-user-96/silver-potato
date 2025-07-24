@@ -1,7 +1,7 @@
 module.exports = function ({ api, models, Users, Threads, Currencies }) {
     const logger = require("../../catalogs/MAHABUBC.js")
     return function ({ event }) {
-        const { allowInbox } = global.ryuko;
+        const { allowInbox } = global.Mahabub;
         const { userBanned, threadBanned } = global.data;
         const { commands, eventRegistered } = global.client;
         var { senderID, threadID } = event;
