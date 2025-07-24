@@ -25,7 +25,7 @@ module.exports = function ({ api, models, Users, Threads, Currencies }) {
                     break;
                 }
                 case "log:thread-name": {
-                    logger('group data uccessfully updated the name in group ' + threadID, 'database')
+                    logger('group data successfully updated the name in group ' + threadID, 'database')
                     dataThread.threadName = event.logMessageData.name
                     await setData(threadID, { threadInfo: dataThread });
                     break;
