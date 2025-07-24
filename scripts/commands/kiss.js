@@ -1,142 +1,103 @@
+const axios = require("axios");
+const fs = require("fs-extra");
+const path = require("path");
+const jimp = require("jimp");
+
 module.exports.config = {
-
-name: "kiss",  
-
-version: "7.3.1",  
-
-permssion: 2,
-
-prefix: true,
-
-credits: "John Lester",
-
-description: "kiss",  
-
-category: "img",  
-
-usages: "[@mention]",  
-
-cooldowns: 5,  
-
-dependencies: {  
-
-    "axios": "",  
-
-    "fs-extra": "",  
-
-    "path": "",  
-
-    "jimp": ""  
-
-}
-
+  name: "kiss",
+  version: "1.0.1",
+  permssion: 0,
+  prefix: true ,
+  credits: "Fixed by ChatGPT",
+  description: "Send a kiss with anime style 💋",
+  category: "img",
+  usages: "[@mention]",
+  cooldowns: 5
 };
 
-module.exports.onLoad = async() => {
+const templateURL = "https://i.ibb.co/9sKHwMK/kiss-template.jpg"; // ✅ your provided background
 
-const { resolve } = global.nodemodule["path"];  
+async function downloadFile(url, filePath) {
+  const res = await axios.get(url, { responseType: "arraybuffer" });
+  fs.writeFileSync(filePath, Buffer.from(res.data));
+}
 
-const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];  
+module.exports.onLoad = async () => {
+  const folder = path.join(__dirname, "cache", "img");
+  const templatePath = path.join(folder, "kiss.png");
 
-const { downloadFile } = global.utils;  
+  if (!fs.existsSync(folder)) fs.mkdirSync(folder, { recursive: true });
+  if (!fs.existsSync(templatePath)) {
+    await downloadFile(templateURL, templatePath);
+  }
+};
 
-const dirMaterial = __dirname + `/cache/canvas/`;  
-
-const path = resolve(__dirname, 'cache/canvas', 'kissv3.png');  
-
-if (!existsSync(dirMaterial + "canvas")) mkdirSync(dirMaterial, { recursive: true });  
-
-if (!existsSync(path)) await downloadFile("https://i.postimg.cc/2jgH7jpQ/undefined-Imgur-1.jpg", path);
-
+async function circle(imagePath) {
+  const img = await jimp.read(imagePath);
+  img.circle();
+  return img.getBufferAsync("image/png");
 }
 
 async function makeImage({ one, two }) {
+  const folder = path.join(__dirname, "cache", "canvas");
+  const template = await jimp.read(path.join(folder, "kiss_template.png"));
 
-const fs = global.nodemodule["fs-extra"];  
+  const onePath = path.join(folder, `avt_${one}.png`);
+  const twoPath = path.join(folder, `avt_${two}.png`);
+  const outPath = path.join(folder, `kiss_${one}_${two}.png`);
 
-const path = global.nodemodule["path"];  
+  const avt1 = await axios.get(
+    `https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379|c1e620fa708a1d5696fb991c1bde5662`,
+    { responseType: "arraybuffer" }
+  );
+  fs.writeFileSync(onePath, Buffer.from(avt1.data));
 
-const axios = global.nodemodule["axios"];   
+  const avt2 = await axios.get(
+    `https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379|c1e620fa708a1d5696fb991c1bde5662`,
+    { responseType: "arraybuffer" }
+  );
+  fs.writeFileSync(twoPath, Buffer.from(avt2.data));
 
-const jimp = global.nodemodule["jimp"];  
+  const circled1 = await jimp.read(await circle(onePath));
+  const circled2 = await jimp.read(await circle(twoPath));
 
-const __root = path.resolve(__dirname, "cache", "canvas");  
+  // 👄 Updated positions based on your image
+  template.composite(circled1.resize(160, 160), 85, 140);    // Left avatar
+  template.composite(circled2.resize(160, 160), 365, 100);   // Right avatar
 
-let batgiam_img = await jimp.read(__root + "/kissv3.png");  
+  const buffer = await template.getBufferAsync("image/png");
+  fs.writeFileSync(outPath, buffer);
 
-let pathImg = __root + `/batman${one}_${two}.png`;  
+  fs.unlinkSync(onePath);
+  fs.unlinkSync(twoPath);
 
-let avatarOne = __root + `/avt_${one}.png`;  
-
-let avatarTwo = __root + `/avt_${two}.png`;  
-
-  
-
-let getAvatarOne = (await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;  
-
-fs.writeFileSync(avatarOne, Buffer.from(getAvatarOne, 'utf-8'));  
-
-  
-
-let getAvatarTwo = (await axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;  
-
-fs.writeFileSync(avatarTwo, Buffer.from(getAvatarTwo, 'utf-8'));  
-
-  
-
-let circleOne = await jimp.read(await circle(avatarOne));  
-
-let circleTwo = await jimp.read(await circle(avatarTwo));  
-
-batgiam_img.composite(circleOne.resize(350, 350), 200, 300).composite(circleTwo.resize(350, 350), 600, 80);  
-
-  
-
-let raw = await batgiam_img.getBufferAsync("image/png");  
-
-  
-
-fs.writeFileSync(pathImg, raw);  
-
-fs.unlinkSync(avatarOne);  
-
-fs.unlinkSync(avatarTwo);  
-
-  
-
-return pathImg;
-
+  return outPath;
 }
 
-async function circle(image) {
+module.exports.run = async function ({ event, api }) {
+  const { threadID, messageID, senderID, mentions } = event;
+  const mentionIDs = Object.keys(mentions);
 
-const jimp = require("jimp");  
-
-image = await jimp.read(image);  
-
-image.circle();  
-
-return await image.getBufferAsync("image/png");
-
-}
-
-module.exports.run = async function ({ event, api, args }) {
-
-const fs = global.nodemodule["fs-extra"];  
-
-const { threadID, messageID, senderID } = event;  
-
-const mention = Object.keys(event.mentions);  
-
-if (!mention[0]) return api.sendMessage("Please mention 1 person.", threadID, messageID);  
-
-else {  
-
-    const one = senderID, two = mention[0];  
-
-    return makeImage({ one, two }).then(path => api.sendMessage({ body: "", attachment: fs.createReadStream(path) }, threadID, () => fs.unlinkSync(path), messageID));  
-
-}  
-
+  if (mentionIDs.length === 0) {
+    return api.sendMessage("Please mention someone to kiss 😘", threadID, messageID);
   }
 
+  const targetID = mentionIDs[0];
+
+  try {
+    const imagePath = await makeImage({ one: senderID, two: targetID });
+
+    api.sendMessage(
+      {
+        body: "💋 Mwah~ Here's your kiss!",
+        attachment: fs.createReadStream(imagePath)
+      },
+      threadID,
+      () => fs.unlinkSync(imagePath),
+      messageID
+    );
+  } catch (err) {
+    console.error("❌ Kiss command error:", err);
+    api.sendMessage("Something went wrong 😓", threadID, messageID);
+  }
+};
