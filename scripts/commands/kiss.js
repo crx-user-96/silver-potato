@@ -6,7 +6,7 @@ const jimp = require("jimp");
 module.exports.config = {
   name: "kiss",
   version: "1.0.1",
-  permssion: 0,
+  permission: 0,
   prefix: true,
   credits: "Fixed by ChatGPT",
   description: "Send a kiss with anime style 💋",
@@ -15,7 +15,7 @@ module.exports.config = {
   cooldowns: 5
 };
 
-const templateURL = "https://iili.io/FeGLxr7.jpg"; // ✅ Your working background
+const templateURL = "https://raw.githubusercontent.com/MR-MAHABUB-004/MAHABUB-BOT-STORAGE/refs/heads/main/img/anime_kiss_resized_700x440.png";
 
 async function downloadFile(url, filePath) {
   const res = await axios.get(url, { responseType: "arraybuffer" });
@@ -24,7 +24,7 @@ async function downloadFile(url, filePath) {
 
 module.exports.onLoad = async () => {
   const folder = path.join(__dirname, "cache", "img");
-  const templatePath = path.join(folder, "kiss.jpg");
+  const templatePath = path.join(folder, "kiss.png");
 
   if (!fs.existsSync(folder)) fs.mkdirSync(folder, { recursive: true });
   if (!fs.existsSync(templatePath)) {
@@ -40,7 +40,7 @@ async function circle(imagePath) {
 
 async function makeImage({ one, two }) {
   const folder = path.join(__dirname, "cache", "img");
-  const template = await jimp.read(path.join(folder, "kiss.jpg"));
+  const template = await jimp.read(path.join(folder, "kiss.png"));
 
   const onePath = path.join(folder, `avt_${one}.png`);
   const twoPath = path.join(folder, `avt_${two}.png`);
@@ -61,9 +61,9 @@ async function makeImage({ one, two }) {
   const circled1 = await jimp.read(await circle(onePath));
   const circled2 = await jimp.read(await circle(twoPath));
 
-  // ✅ Avatar placement based on your image (adjust if needed)
-  template.composite(circled1.resize(160, 160), 100, 170); // left avatar
-  template.composite(circled2.resize(160, 160), 370, 130); // right avatar
+  // Adjust avatar positions & sizes based on new image size (700x440)
+  template.composite(circled1.resize(140, 140), 90, 170);  // Left avatar
+  template.composite(circled2.resize(140, 140), 460, 140); // Right avatar
 
   const buffer = await template.getBufferAsync("image/png");
   fs.writeFileSync(outPath, buffer);
