@@ -6,10 +6,11 @@ const jimp = require("jimp");
 module.exports.config = {
   name: "hug",
   version: "3.1.1",
-  hasPermssion: 0,
+  permssion: 0,
+  prefix: true,
   credits: "CYBER BOT TEAM (Fixed by ChatGPT)",
   description: "Send a hug image 🥰",
-  commandCategory: "img",
+  category: "img",
   usages: "[@mention]",
   cooldowns: 5,
   dependencies: {
