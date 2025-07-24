@@ -63,7 +63,7 @@ async function makeImage({ one, two }) {
 
   // Adjust avatar positions & sizes based on new image size (700x440)
   template.composite(circled1.resize(140, 140), 90, 170);  // Left avatar
-  template.composite(circled2.resize(140, 140), 460, 100); // Right avatar
+  template.composite(circled2.resize(140, 140), 430, 80); // Right avatar
 
   const buffer = await template.getBufferAsync("image/png");
   fs.writeFileSync(outPath, buffer);
