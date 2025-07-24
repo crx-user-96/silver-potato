@@ -27,7 +27,7 @@ module.exports.run = async function ({ api, event, args }) {
     uid = event.senderID;
   }
 
-  const imageUrl = `${global.imranapi.imran}/api/fbp?uid=${uid}`;
+  const imageUrl = `${global.mahabub.api}/api/fbp?uid=${uid}`;
   const filePath = path.join(__dirname, "cache", `${uid}.jpg`);
 
   try {
