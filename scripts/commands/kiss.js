@@ -39,8 +39,8 @@ async function circle(imagePath) {
 }
 
 async function makeImage({ one, two }) {
-  const folder = path.join(__dirname, "cache", "canvas");
-  const template = await jimp.read(path.join(folder, "kiss_template.png"));
+  const folder = path.join(__dirname, "cache", "img");
+  const template = await jimp.read(path.join(folder, "kiss.png"));
 
   const onePath = path.join(folder, `avt_${one}.png`);
   const twoPath = path.join(folder, `avt_${two}.png`);
