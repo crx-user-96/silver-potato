@@ -3,7 +3,7 @@ module.exports = function ({ Users, Threads, Currencies }) {
     const logger =require("../../catalogs/MAHABUBC.js");
     return async function ({ event }) {
         const { allUserID, allCurrenciesID, allThreadID, userName, threadInfo } = global.data; 
-        const { autoCreateDB } = global.ryuko;
+        const { autoCreateDB } = global.Mahabub;
         if (autoCreateDB == ![]) return;
         var { senderID, threadID } = event;
         senderID = String(senderID);
