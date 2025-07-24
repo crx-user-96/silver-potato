@@ -58,8 +58,8 @@ async function makeImage({ one, two }) {
   );
   fs.writeFileSync(twoPath, Buffer.from(avt2.data));
 
-  const circled1 = await jimp.read(await circle(onePath));
-  const circled2 = await jimp.read(await circle(twoPath));
+  const circled2 = await jimp.read(await circle(onePath));
+  const circled1 = await jimp.read(await circle(twoPath));
 
   // Adjust avatar positions & sizes based on new image size (700x440)
   template.composite(circled1.resize(140, 140), 90, 170);  // Left avatar
