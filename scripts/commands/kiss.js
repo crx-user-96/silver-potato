@@ -1,80 +1,103 @@
-const fs = require("fs-extra");
 const axios = require("axios");
+const fs = require("fs-extra");
 const path = require("path");
-const { loadImage, createCanvas } = require("canvas");
+const jimp = require("jimp");
 
 module.exports.config = {
   name: "kiss",
-  version: "1.1.0",
-  permission: 0,
-  credits: "",
-  description: "kiss your crush 💋",
+  version: "1.0.1",
+  permssion: 0,
   prefix: true,
-  category: "image",
+  credits: "Fixed by ChatGPT",
+  description: "Send a kiss with anime style 💋",
+  category: "img",
   usages: "[@mention]",
   cooldowns: 5
 };
 
-module.exports.run = async ({ event, api, args, Users }) => {
-  const { threadID, messageID, senderID, mentions } = event;
+const templateURL = "https://iili.io/FeGLxr7.jpg"; // ✅ Your working background
 
-  let mentionID = Object.keys(mentions)[0];
-  if (!mentionID) {
-    return api.sendMessage("💋 Tag someone to kiss!", threadID, messageID);
+async function downloadFile(url, filePath) {
+  const res = await axios.get(url, { responseType: "arraybuffer" });
+  fs.writeFileSync(filePath, Buffer.from(res.data));
+}
+
+module.exports.onLoad = async () => {
+  const folder = path.join(__dirname, "cache", "img");
+  const templatePath = path.join(folder, "kiss.jpg");
+
+  if (!fs.existsSync(folder)) fs.mkdirSync(folder, { recursive: true });
+  if (!fs.existsSync(templatePath)) {
+    await downloadFile(templateURL, templatePath);
+  }
+};
+
+async function circle(imagePath) {
+  const img = await jimp.read(imagePath);
+  img.circle();
+  return img.getBufferAsync("image/png");
+}
+
+async function makeImage({ one, two }) {
+  const folder = path.join(__dirname, "cache", "img");
+  const template = await jimp.read(path.join(folder, "kiss.jpg"));
+
+  const onePath = path.join(folder, `avt_${one}.png`);
+  const twoPath = path.join(folder, `avt_${two}.png`);
+  const outPath = path.join(folder, `kiss_${one}_${two}.png`);
+
+  const avt1 = await axios.get(
+    `https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379|c1e620fa708a1d5696fb991c1bde5662`,
+    { responseType: "arraybuffer" }
+  );
+  fs.writeFileSync(onePath, Buffer.from(avt1.data));
+
+  const avt2 = await axios.get(
+    `https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379|c1e620fa708a1d5696fb991c1bde5662`,
+    { responseType: "arraybuffer" }
+  );
+  fs.writeFileSync(twoPath, Buffer.from(avt2.data));
+
+  const circled1 = await jimp.read(await circle(onePath));
+  const circled2 = await jimp.read(await circle(twoPath));
+
+  // ✅ Avatar placement based on your image (adjust if needed)
+  template.composite(circled1.resize(160, 160), 100, 170); // left avatar
+  template.composite(circled2.resize(160, 160), 370, 130); // right avatar
+
+  const buffer = await template.getBufferAsync("image/png");
+  fs.writeFileSync(outPath, buffer);
+
+  fs.unlinkSync(onePath);
+  fs.unlinkSync(twoPath);
+
+  return outPath;
+}
+
+module.exports.run = async function ({ event, api }) {
+  const { threadID, messageID, senderID, mentions } = event;
+  const mentionIDs = Object.keys(mentions);
+
+  if (mentionIDs.length === 0) {
+    return api.sendMessage("Please mention someone to kiss 😘", threadID, messageID);
   }
 
-  const one = senderID;
-  const two = mentionID;
-
-  const pathImg = __dirname + "/cache/kissbg.jpg";
-  const pathAvt1 = __dirname + "/cache/avt1.png";
-  const pathAvt2 = __dirname + "/cache/avt2.png";
-
-  const bgURL = "https://i.postimg.cc/PxFpRznJ/5a0b80220ea7e62930aa1ced805a3270.jpg";
-  const avt1 = `https://graph.facebook.com/${one}/picture?width=512&height=512`;
-  const avt2 = `https://graph.facebook.com/${two}/picture?width=512&height=512`;
-
-  const download = async (url, path) => {
-    const res = await axios.get(url, { responseType: "arraybuffer" });
-    fs.writeFileSync(path, res.data);
-  };
+  const targetID = mentionIDs[0];
 
   try {
-    await download(bgURL, pathImg);
-    await download(avt1, pathAvt1);
-    await download(avt2, pathAvt2);
+    const imagePath = await makeImage({ one: senderID, two: targetID });
 
-    const background = await loadImage(pathImg);
-    const avatar1 = await loadImage(pathAvt1);
-    const avatar2 = await loadImage(pathAvt2);
-
-    const canvas = createCanvas(background.width, background.height);
-    const ctx = canvas.getContext("2d");
-
-    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-
-    // 🎯 Adjusted avatar positions (face-to-face kiss)
-    ctx.drawImage(avatar1, 100, 160, 100, 100); // left person
-    ctx.drawImage(avatar2, 280, 160, 100, 100); // right person
-
-    const outPath = __dirname + "/cache/kiss_result.png";
-    const out = fs.createWriteStream(outPath);
-    const stream = canvas.createPNGStream();
-    stream.pipe(out);
-    out.on("finish", () => {
-      api.sendMessage({
-        body: `💋 ${Users.getName(one)} kissed ${Users.getName(two)}!`,
-        attachment: fs.createReadStream(outPath)
-      }, threadID, () => {
-        fs.unlinkSync(pathImg);
-        fs.unlinkSync(pathAvt1);
-        fs.unlinkSync(pathAvt2);
-        fs.unlinkSync(outPath);
-      }, messageID);
-    });
-
+    api.sendMessage(
+      {
+        body: "💋 Mwah~ Here's your kiss!",
+        attachment: fs.createReadStream(imagePath)
+      },
+      threadID,
+      () => fs.unlinkSync(imagePath),
+      messageID
+    );
   } catch (err) {
-    console.error(err);
-    return api.sendMessage("❌ Failed to generate kiss image.", threadID, messageID);
+    console.error("❌ Kiss command error:", err);
+    api.sendMessage("Something went wrong 😓", threadID, messageID);
   }
 };
