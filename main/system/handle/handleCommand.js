@@ -7,7 +7,7 @@ module.exports = function({ api, models, Users, Threads, Currencies }) {
   return async function({ event }) {
     const dateNow = Date.now()
     const time = moment.tz("Asia/Dhaka").format("HH:MM:ss DD/MM/YYYY");
-    const { allowInbox, adminOnly, keyAdminOnly } = global.ryuko;
+    const { allowInbox, adminOnly, keyAdminOnly } = global.Mahabub;
     const { PREFIX, ADMINBOT, OWNER, developermode, OPERATOR, approval } = global.config;
     const { APPROVED } = global.approved;
     const { userBanned, threadBanned, threadInfo, threadData, commandBanned } = global.data;
@@ -26,10 +26,10 @@ module.exports = function({ api, models, Users, Threads, Currencies }) {
       if (APPROVED.includes(threadID)) {
         return api.sendMessage('this box is already approved', threadID, messageID)
       }
-      let ryukodev;
+      let mahabubdev;
       let request;
         var groupname = await global.data.threadInfo.get(threadID).threadName || "name does not exist";
-        ryukodev = `group name : ${groupname}\ngroup id : ${threadID}`;
+        mahabubdev = `group name : ${groupname}\ngroup id : ${threadID}`;
         request = `${groupname} group is requesting for approval`
       try {
         send('box approval request', request + '\n\n' + ryukodev);
