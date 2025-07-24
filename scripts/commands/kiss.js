@@ -5,9 +5,9 @@ const jimp = require("jimp");
 
 module.exports.config = {
   name: "kiss",
-  version: "1.0.1",
+  version: "1.0.2",
   permssion: 0,
-  prefix: true ,
+  prefix: true,
   credits: "Fixed by ChatGPT",
   description: "Send a kiss with anime style 💋",
   category: "img",
@@ -15,7 +15,8 @@ module.exports.config = {
   cooldowns: 5
 };
 
-const templateURL = "https://i.ibb.co/9sKHwMK/kiss-template.jpg"; // ✅ your provided background
+// ✅ Use your new image here
+const templateURL = "https://i.ibb.co/F4Lx0XJ/anime-kiss.jpg";
 
 async function downloadFile(url, filePath) {
   const res = await axios.get(url, { responseType: "arraybuffer" });
@@ -24,7 +25,7 @@ async function downloadFile(url, filePath) {
 
 module.exports.onLoad = async () => {
   const folder = path.join(__dirname, "cache", "img");
-  const templatePath = path.join(folder, "kiss.png");
+  const templatePath = path.join(folder, "kiss_template.png");
 
   if (!fs.existsSync(folder)) fs.mkdirSync(folder, { recursive: true });
   if (!fs.existsSync(templatePath)) {
@@ -40,7 +41,7 @@ async function circle(imagePath) {
 
 async function makeImage({ one, two }) {
   const folder = path.join(__dirname, "cache", "img");
-  const template = await jimp.read(path.join(folder, "kiss.png"));
+  const template = await jimp.read(path.join(folder, "kiss_template.png"));
 
   const onePath = path.join(folder, `avt_${one}.png`);
   const twoPath = path.join(folder, `avt_${two}.png`);
@@ -61,9 +62,9 @@ async function makeImage({ one, two }) {
   const circled1 = await jimp.read(await circle(onePath));
   const circled2 = await jimp.read(await circle(twoPath));
 
-  // 👄 Updated positions based on your image
-  template.composite(circled1.resize(160, 160), 85, 140);    // Left avatar
-  template.composite(circled2.resize(160, 160), 365, 100);   // Right avatar
+  // 🎯 Adjust avatar positions for new image
+  template.composite(circled1.resize(110, 110), 120, 150); // Left
+  template.composite(circled2.resize(110, 110), 290, 150); // Right
 
   const buffer = await template.getBufferAsync("image/png");
   fs.writeFileSync(outPath, buffer);
@@ -89,7 +90,7 @@ module.exports.run = async function ({ event, api }) {
 
     api.sendMessage(
       {
-        body: "💋 Mwah~ Here's your kiss!",
+        body: "💋 Mwah~ !",
         attachment: fs.createReadStream(imagePath)
       },
       threadID,
