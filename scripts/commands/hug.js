@@ -6,11 +6,10 @@ const jimp = require("jimp");
 module.exports.config = {
   name: "hug",
   version: "3.1.1",
-  permssion: 0,
-  prefix: true,
-  credits: "",
-  description: "Send a hug image",
-  category: "img",
+  hasPermssion: 0,
+  credits: "CYBER BOT TEAM (Fixed by ChatGPT)",
+  description: "Send a hug image 🥰",
+  commandCategory: "img",
   usages: "[@mention]",
   cooldowns: 5,
   dependencies: {
@@ -21,86 +20,98 @@ module.exports.config = {
   }
 };
 
-module.exports.onLoad = async () => {
-  const cachePath = path.join(__dirname, "cache", "canvas");
-  const templatePath = path.join(cachePath, "hugv1.png");
+const templateURL = "https://i.ibb.co/3YN3T1r/q1y28eqblsr21.jpg";
 
-  if (!fs.existsSync(cachePath)) fs.mkdirSync(cachePath, { recursive: true });
+async function downloadFile(url, filePath) {
+  const res = await axios.get(url, { responseType: "arraybuffer" });
+  fs.writeFileSync(filePath, Buffer.from(res.data));
+}
+
+module.exports.onLoad = async () => {
+  const folderPath = path.join(__dirname, "cache", "canvas");
+  const templatePath = path.join(folderPath, "hugv1.png");
+
+  if (!fs.existsSync(folderPath)) {
+    fs.mkdirSync(folderPath, { recursive: true });
+  }
 
   if (!fs.existsSync(templatePath)) {
-    await global.utils.downloadFile("https://i.ibb.co/3YN3T1r/q1y28eqblsr21.jpg", templatePath);
+    await downloadFile(templateURL, templatePath);
   }
 };
 
-async function circleImage(imgPath) {
-  const image = await jimp.read(imgPath);
-  image.circle();
-  return image.getBufferAsync("image/png");
+async function circle(imagePath) {
+  const img = await jimp.read(imagePath);
+  img.circle();
+  return img.getBufferAsync("image/png");
 }
 
 async function makeImage({ one, two }) {
-  const cachePath = path.join(__dirname, "cache", "img");
-  const template = await jimp.read(path.join(cachePath, "hugv1.png"));
+  const folder = path.join(__dirname, "cache", "img");
+  const bg = await jimp.read(path.join(folder, "hugv1.png"));
 
-  const oneAvatarPath = path.join(cachePath, `avt_${one}.png`);
-  const twoAvatarPath = path.join(cachePath, `avt_${two}.png`);
-  const finalImgPath = path.join(cachePath, `hug_${one}_${two}.png`);
+  const onePath = path.join(folder, `avt_${one}.png`);
+  const twoPath = path.join(folder, `avt_${two}.png`);
+  const outPath = path.join(folder, `hug_${one}_${two}.png`);
 
-  const oneAvatar = (
-    await axios.get(
-      `https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379|c1e620fa708a1d5696fb991c1bde5662`,
-      { responseType: "arraybuffer" }
-    )
-  ).data;
-  const twoAvatar = (
-    await axios.get(
-      `https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379|c1e620fa708a1d5696fb991c1bde5662`,
-      { responseType: "arraybuffer" }
-    )
-  ).data;
+  const avtOne = await axios.get(
+    `https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379|c1e620fa708a1d5696fb991c1bde5662`,
+    { responseType: "arraybuffer" }
+  );
+  fs.writeFileSync(onePath, Buffer.from(avtOne.data));
 
-  fs.writeFileSync(oneAvatarPath, Buffer.from(oneAvatar));
-  fs.writeFileSync(twoAvatarPath, Buffer.from(twoAvatar));
+  const avtTwo = await axios.get(
+    `https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379|c1e620fa708a1d5696fb991c1bde5662`,
+    { responseType: "arraybuffer" }
+  );
+  fs.writeFileSync(twoPath, Buffer.from(avtTwo.data));
 
-  const circleOne = await jimp.read(await circleImage(oneAvatarPath));
-  const circleTwo = await jimp.read(await circleImage(twoAvatarPath));
+  const circledOne = await jimp.read(await circle(onePath));
+  const circledTwo = await jimp.read(await circle(twoPath));
 
-  template
-    .composite(circleOne.resize(150, 150), 320, 100)
-    .composite(circleTwo.resize(130, 130), 280, 280);
+  bg.composite(circledOne.resize(150, 150), 320, 100);
+  bg.composite(circledTwo.resize(130, 130), 280, 280);
 
-  const finalBuffer = await template.getBufferAsync("image/png");
-  fs.writeFileSync(finalImgPath, finalBuffer);
+  const finalBuffer = await bg.getBufferAsync("image/png");
+  fs.writeFileSync(outPath, finalBuffer);
 
-  fs.unlinkSync(oneAvatarPath);
-  fs.unlinkSync(twoAvatarPath);
+  fs.unlinkSync(onePath);
+  fs.unlinkSync(twoPath);
 
-  return finalImgPath;
+  return outPath;
 }
 
 module.exports.run = async function ({ event, api }) {
   const { threadID, messageID, senderID, mentions } = event;
   const mentionIDs = Object.keys(mentions);
 
-  if (!mentionIDs.length) {
-    return api.sendMessage("Please mention 1 person to hug 🥰", threadID, messageID);
+  if (mentionIDs.length === 0) {
+    return api.sendMessage("Please mention someone to hug 🥺", threadID, messageID);
   }
 
   const targetID = mentionIDs[0];
 
   try {
-    const imgPath = await makeImage({ one: senderID, two: targetID });
+    const imagePath = await makeImage({ one: senderID, two: targetID });
+
     api.sendMessage(
       {
-        body: "Aww 💞 here's your hug!",
-        attachment: fs.createReadStream(imgPath)
+        body: "Aww 🫂 Here's your hug 💞",
+        attachment: fs.createReadStream(imagePath)
       },
       threadID,
-      () => fs.unlinkSync(imgPath),
+      () => fs.unlinkSync(imagePath),
       messageID
     );
   } catch (err) {
-    console.error(err);
-    api.sendMessage("Something went wrong. Please try again later.", threadID, messageID);
+    console.error("❌ Hug command error:", err);
+    api.sendMessage("Something went wrong 😓", threadID, messageID);
   }
 };
+
+
+
+
+
+
+
