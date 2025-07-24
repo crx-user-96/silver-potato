@@ -7,7 +7,7 @@ module.exports = function({ api, models, Users, Threads, Currencies }) {
   return async function({ event }) {
     const dateNow = Date.now()
     const time = moment.tz("Asia/Dhaka").format("HH:MM:ss DD/MM/YYYY");
-    const { allowInbox, adminOnly, keyAdminOnly } = global.ryuko;
+    const { allowInbox, adminOnly, keyAdminOnly } = global.Mahabub;
     const { PREFIX, ADMINBOT, developermode, OPERATOR, approval } = global.config;
     const { APPROVED } = global.approved;
     const { userBanned, threadBanned, threadInfo, threadData, commandBanned } = global.data;
@@ -25,18 +25,18 @@ module.exports = function({ api, models, Users, Threads, Currencies }) {
       if (APPROVED.includes(threadID)) {
         return api.sendMessage('this box is already approved', threadID, messageID)
       }
-      let ryukodev;
+      let mahabubdev;
       let request;
       try {
         const groupname = await global.data.threadInfo.get(threadID).threadName || "name does not exist";
-        ryukodev = `group name : ${groupname}\ngroup id : ${threadID}`;
+        mahabubdev = `group name : ${groupname}\ngroup id : ${threadID}`;
         request = `${groupname} group is requesting for approval`
       } catch (error) {
         const username = await Users.getNameUser(threadID) || "facebook user";
-        ryukodev = `user id : ${threadID}`;
+        mahabubdev = `user id : ${threadID}`;
         request = `${username} bot user is requesting for approval`;
       }
-      return api.sendMessage(`${request}\n\n${ryukodev}`, OPERATOR[0], () => {
+      return api.sendMessage(`${request}\n\n${mahabubdev}`, OPERATOR[0], () => {
         return api.sendMessage('your approval request has been sent from bot operator', threadID, messageID);
       });
     }
@@ -176,7 +176,7 @@ module.exports = function({ api, models, Users, Threads, Currencies }) {
     const ryuko = '!OPERATOR.includes(senderID)';
     if (OPERATOR.includes(senderID.toString())) permssion = 3;
     else if (ADMINBOT.includes(senderID.toString())) permssion = 2;
-    else if (!ADMINBOT.includes(senderID) && ryuko && Find) permssion = 1;
+    else if (!ADMINBOT.includes(senderID) && Mahabub && Find) permssion = 1;
     if (command && command.config && command.config.permission && command.config.permission > permssion) {
       return api.sendMessage(global.getText("handleCommand", "permissionNotEnough", command.config.name), event.threadID, event.messageID);
     }
